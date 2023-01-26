@@ -1,0 +1,14 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: python-big-query
+spec:
+  host: python-big-query-user1-services.apps.den-east12.ratwater.xyz
+  path: /
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: python-big-query
+    weight: 100
+  wildcardPolicy: None

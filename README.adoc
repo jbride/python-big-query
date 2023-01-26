@@ -1,0 +1,114 @@
+= python-big-query
+
+:numbered:
+
+== Pre-reqs
+
+. `Google Cloud` _account_ and _project_ with access to `BigQuery` resource.
++
+Documentation can be found link:https://cloud.google.com/bigquery/public-data[]
+
+. `Google Application Default Credentials (ADC)`
++
+Please set-up ADC in your local environment as per link:https://cloud.google.com/docs/authentication/provide-credentials-adc[this documentation].
+
+. OCP 4.*
++
+You'll need access to an OpenShift environment with ability to create an OpenShift project.
+
+. `oc` utility
++
+Version should correspond to version of OCP you are authenticated to.
+
+. `git` utility
+
+== Google Service Account
+
+Client authentication to `BigQuery` requires more than simply passing a userId/password as part of a database connection string.
+
+Instead, a Google _Service Account_ is needed.
+
+A Google _Service Account_ can be obtained using the `gcloud` utility in the environment you already set-up Google ADC.
+
+=== Procedure
+
+. Set `PROJECT_ID` as an env var:
++
+-----
+$ export PROJECT_ID=$(gcloud config get-value core/project)
+-----
+
+. Create a new Google Service Account:
++
+-----
+$ gcloud iam service-accounts create python-bigquery-sa   --display-name "python-big-query-sa"
+-----
++
+NOTE:  This new service account is created in:  ~/.config/gcloud/
+
+. Ensure that your new Service Account is enabled with the `bigquery.user` role:
++
+-----
+$ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member "serviceAccount:python-bigquery-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role "roles/bigquery.user"
+
+$ gcloud projects get-iam-policy $PROJECT_ID
+-----
+
+. Export the Google Service Account to a json file:
++
+-----
+$ gcloud iam service-accounts keys create \
+    /tmp/python-big-query-auth.json \
+    --iam-account python-bigquery-sa@${PROJECT_ID}.iam.gserviceaccount.com
+-----
+
+. Change permissions on the JSON file:
++
+-----
+$ chmod 544 /tmp/python-big-query-auth.json
+-----
+
+
+== Local
+
+. Run a local container that executes SQL on BigQuery using your Google Service Account
++
+-----
+$ podman run \
+    -d \
+    -p 8080:8080 \
+    -e GOOGLE_APPLICATION_CREDENTIALS=/deployments/config/python-big-query-auth.json \
+    -v /tmp/python-big-query-auth.json:/deployments/config/python-big-query-auth.json:bind \
+    --name p-bigquery \
+    quay.io/jbride/python-big-query:0.0.1
+-----
+
+. Invoke the python service (which subsequently runs SQL on BigQuery):
++
+-----
+$ curl localhost:8080
+-----
+
+== OpenShift
+
+. Create configmap:
++
+-----
+$ oc create configmap big-query-auth \
+    --from-file=/tmp/python-big-query-auth.json
+-----
+
+. Deploy to OpenShift
++
+-----
+$ oc apply -k kustomize/base/
+-----
+
+. Execute an HTTP GET on the `route` endpoint created in OpenShift
+
+== Reference
+
+. link:https://github.com/devfile-samples/devfile-sample-python-basic.git[devfile-sample-python-basic]
+. link:https://github.com/kubernetes-sigs/kustomize/tree/master/examples/helloWorld[kustomize helloworld]
