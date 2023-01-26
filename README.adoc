@@ -110,5 +110,6 @@ $ oc apply -k kustomize/base/
 
 == Reference
 
+. link:https://codelabs.developers.google.com/codelabs/cloud-bigquery-python#0[Using BigQuery w/ Python]
 . link:https://github.com/devfile-samples/devfile-sample-python-basic.git[devfile-sample-python-basic]
 . link:https://github.com/kubernetes-sigs/kustomize/tree/master/examples/helloWorld[kustomize helloworld]
