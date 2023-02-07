@@ -6,7 +6,7 @@
 
 . `Google Cloud` _account_ and _project_ with access to `BigQuery` resource.
 +
-Documentation can be found link:https://cloud.google.com/bigquery/public-data[]
+Documentation can be found link:https://cloud.google.com/bigquery/public-data[here].
 
 . `Google Application Default Credentials (ADC)`
 +
@@ -85,7 +85,7 @@ $ podman run \
     quay.io/jbride/python-big-query:0.0.1
 -----
 
-. Invoke the python service (which subsequently runs SQL on BigQuery):
+. Invoke the python service (which subsequently executes SQL on BigQuery):
 +
 -----
 $ curl localhost:8080
